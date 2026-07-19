@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-/// @notice Disperse-style bulk sender. No admin, no custody.
-/// Industry-standard pattern (disperse.app) — 1 tx → many recipients.
-contract MultiSend {
+/// @notice Arken protocol bulk sender. No admin, no custody.
+/// 1 tx → many recipients. Own Arken router — not public Disperse.
+contract ArkenProtocol {
     error LengthMismatch();
     error BadValue();
     error EthFail(address to);
     error TokenFail(address to);
 
     /// @notice Send native coin to many addresses in one transaction.
-    function disperseEther(address[] calldata recipients, uint256[] calldata amounts) external payable {
+    function arkenProtocol(address[] calldata recipients, uint256[] calldata amounts) external payable {
         uint256 n = recipients.length;
         if (n != amounts.length) revert LengthMismatch();
 
@@ -27,7 +27,7 @@ contract MultiSend {
     }
 
     /// @notice Send ERC-20 to many addresses (requires prior approve of this contract).
-    function disperseToken(address token, address[] calldata recipients, uint256[] calldata amounts) external {
+    function arkenProtocolToken(address token, address[] calldata recipients, uint256[] calldata amounts) external {
         uint256 n = recipients.length;
         if (n != amounts.length) revert LengthMismatch();
 

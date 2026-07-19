@@ -1,12 +1,12 @@
 /**
- * Arken — OWN MultiSend protocol only.
- * Arken protocol only — no Multicall3 / Disperse. 1 signature batch after protocol is live.
+ * Arken — OWN ArkenProtocol only.
+ * Arken protocol only — no Multicall3 / public Disperse. 1 signature batch after protocol is live.
  *
  * Resolve order:
  *   1. CREATE2 Arken at predicted address (if already live)
  *   2. localStorage saved Arken for this chain (if live)
- *   3. Deploy our MultiSend (CREATE2 preferred, else plain create) — one-time
- *   4. disperseEther / disperseToken in ONE tx
+ *   3. Deploy ArkenProtocol (CREATE2 preferred, else plain create) — one-time
+ *   4. arkenProtocol / arkenProtocolToken in ONE tx
  */
 
 import {
@@ -27,7 +27,8 @@ import { MULTISEND_ABI, MULTISEND_BYTECODE } from './multisendArtifact.js';
 
 /** Deterministic CREATE2 salt unique to Arken (not BundleTransfer) */
 export const CREATE2_DEPLOYER = '0x4e59b44847b379578588920cA78FbF26c0B4956C';
-export const MULTISEND_SALT = id('arken.transfer.protocol.v1');
+/** v2 salt — method names arkenProtocol* (v1 was disperseEther* branding) */
+export const MULTISEND_SALT = id('arken.transfer.protocol.v2');
 export const MULTISEND_CREATE2_ADDRESS = getCreate2Address(
   CREATE2_DEPLOYER,
   MULTISEND_SALT,
@@ -40,7 +41,7 @@ const ERC20_ABI = [
   'function transfer(address to, uint256 amount) returns (bool)',
 ];
 
-const LS_KEY = 'arken.batchContract.v1';
+const LS_KEY = 'arken.batchContract.v2';
 
 export function assertEnoughBalance({ totalAmount, balanceFormatted, symbol }) {
   if (compareDecimals(balanceFormatted, totalAmount) < 0) {
@@ -87,13 +88,13 @@ function saveStoredBatch(chainId, address) {
 
 /**
  * Only our Arken protocol — never Multicall3 / public Disperse.
+ * Pin is set after first successful CREATE2 deploy of v2 (arkenProtocol methods).
+ * Old v1 (disperseEther names) at 0x3cE4… is retired — do not call it.
  */
-/** Known live Arken protocol on Arc Testnet — skip deploy forever when code is present */
-export const LIVE_ARKEN_PROTOCOL = '0x3cE4D2831B4bFeF274703d4ea8f8354380a7035D';
+export const LIVE_ARKEN_PROTOCOL = null;
 
 export async function resolveBatchExecutor(provider, chainId) {
-  // Prefer pinned live address first (same CREATE2 prediction)
-  if (await hasCode(provider, LIVE_ARKEN_PROTOCOL)) {
+  if (LIVE_ARKEN_PROTOCOL && (await hasCode(provider, LIVE_ARKEN_PROTOCOL))) {
     return {
       type: 'multisend',
       address: LIVE_ARKEN_PROTOCOL,
@@ -257,13 +258,13 @@ export async function estimateBatchGas({
   let gas;
   try {
     if (exec.type === 'multisend' && mode === 'native') {
-      gas = await new Contract(exec.address, MULTISEND_ABI, provider).disperseEther.estimateGas(
+      gas = await new Contract(exec.address, MULTISEND_ABI, provider).arkenProtocol.estimateGas(
         recipients,
         values,
         { from, value: total }
       );
     } else if (exec.type === 'multisend' && mode === 'erc20') {
-      gas = await new Contract(exec.address, MULTISEND_ABI, provider).disperseToken.estimateGas(
+      gas = await new Contract(exec.address, MULTISEND_ABI, provider).arkenProtocolToken.estimateGas(
         tokenAddress,
         recipients,
         values,
@@ -428,13 +429,13 @@ async function runArken(ctx) {
   onStatus?.(`Confirm 1 Arken batch · ${recipients.length} wallets…`);
   let tx;
   if (mode === 'native') {
-    const gas = await c.disperseEther.estimateGas(recipients, values, { value: total });
+    const gas = await c.arkenProtocol.estimateGas(recipients, values, { value: total });
     const o = await txOverrides(provider, gas);
-    tx = await c.disperseEther(recipients, values, { value: total, ...o });
+    tx = await c.arkenProtocol(recipients, values, { value: total, ...o });
   } else {
-    const gas = await c.disperseToken.estimateGas(tokenAddress, recipients, values);
+    const gas = await c.arkenProtocolToken.estimateGas(tokenAddress, recipients, values);
     const o = await txOverrides(provider, gas);
-    tx = await c.disperseToken(tokenAddress, recipients, values, o);
+    tx = await c.arkenProtocolToken(tokenAddress, recipients, values, o);
   }
   return finishBatch({
     provider,

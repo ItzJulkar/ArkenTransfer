@@ -21,7 +21,11 @@ if (out.errors?.some((e) => e.severity === 'error')) {
   console.error(out.errors);
   process.exit(1);
 }
-const c = out.contracts['MultiSend.sol'].MultiSend;
+const c = out.contracts['MultiSend.sol'].ArkenProtocol;
+if (!c) {
+  console.error('Contract ArkenProtocol not found in compile output');
+  process.exit(1);
+}
 const artifact = {
   abi: c.abi,
   bytecode: '0x' + c.evm.bytecode.object,
