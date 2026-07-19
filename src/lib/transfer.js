@@ -88,10 +88,11 @@ function saveStoredBatch(chainId, address) {
 
 /**
  * Only our Arken protocol — never Multicall3 / public Disperse.
- * Pin is set after first successful CREATE2 deploy of v2 (arkenProtocol methods).
+ * v2 CREATE2 live on Arc Testnet — methods arkenProtocol / arkenProtocolToken.
+ * Explorer Method hex 0xed8b4de7 = arkenProtocol selector until Arcscan verifies source.
  * Old v1 (disperseEther names) at 0x3cE4… is retired — do not call it.
  */
-export const LIVE_ARKEN_PROTOCOL = null;
+export const LIVE_ARKEN_PROTOCOL = '0xBCB3D8DcA3992478AA1A578d24EF5dA2600f7160';
 
 export async function resolveBatchExecutor(provider, chainId) {
   if (LIVE_ARKEN_PROTOCOL && (await hasCode(provider, LIVE_ARKEN_PROTOCOL))) {
@@ -279,14 +280,26 @@ export async function estimateBatchGas({
   }
 
   const feeData = await provider.getFeeData();
-  const gasPrice = feeData.gasPrice || feeData.maxFeePerGas || 0n;
+  // Prefer network gasPrice (what Arc actually charged). maxFeePerGas alone often overstates.
+  let gasPrice = feeData.gasPrice ?? 0n;
+  if (!gasPrice && feeData.maxFeePerGas != null) {
+    const tip = feeData.maxPriorityFeePerGas ?? 0n;
+    const lean = tip > 0n ? tip : feeData.maxFeePerGas;
+    gasPrice = feeData.maxFeePerGas < lean ? feeData.maxFeePerGas : lean;
+    // if still only maxFee, use it
+    if (!gasPrice) gasPrice = feeData.maxFeePerGas;
+  }
   const dec = nativeDecimals(chainId);
+  const feeWei = gas * gasPrice;
   return {
     totalGas: gas,
-    feeWei: gas * gasPrice,
-    feeFormatted: formatUnits(gas * gasPrice, dec),
+    gasPrice,
+    feeWei,
+    feeFormatted: formatUnits(feeWei, dec),
     batch: exec.type === 'multisend',
     needsDeploy: exec.type === 'none',
+    method: mode === 'native' ? 'arkenProtocol' : 'arkenProtocolToken',
+    protocolAddress: exec.address || exec.predicted || null,
     executor: exec,
   };
 }

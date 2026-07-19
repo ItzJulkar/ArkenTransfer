@@ -650,8 +650,17 @@ async function onSimulate() {
       chainId: state.chainId,
     });
     const chain = getChain(state.chainId);
-    el.statGas.textContent = `~${trim(est.feeFormatted, 6)} ${chain?.nativeSymbol || 'USDC'}`;
-    toast('Gas estimate ready', 'ok');
+    const sym = chain?.nativeSymbol || 'USDC';
+    const gasUnits = est.totalGas != null ? Number(est.totalGas).toLocaleString() : '?';
+    // Match explorer-style fee (actual batch gas × gasPrice), not wallet max pad
+    el.statGas.textContent = `~${trim(est.feeFormatted, 8)} ${sym} · ${gasUnits} gas`;
+    const method = est.method || 'arkenProtocol';
+    toast(
+      est.needsDeploy
+        ? `Est. includes one-time Arken deploy + ${method}`
+        : `Est. ${method} · protocol live`,
+      'ok'
+    );
   } catch (err) {
     toast(err?.shortMessage || err?.message || 'Gas estimate failed', 'err');
   } finally {
@@ -715,7 +724,7 @@ async function onSend() {
         </div>
         <p class="confirm-from mono dim">From ${escapeHtml(shortAddr(state.address, 6))}</p>
         ${customWarn}
-        <p class="confirm-note"><strong>Arken protocol</strong> · all ${n} wallets in one batch signature. Wallet may list ${n} internal sends under <strong>one</strong> fee.</p>
+        <p class="confirm-note"><strong>Arken protocol</strong> · method <span class="mono">arkenProtocol</span> · all ${n} wallets in one batch signature. Wallet may list ${n} internal sends under <strong>one</strong> fee. Explorer may show selector <span class="mono">0xed8b4de7</span> until Arcscan verifies source (not Disperse).</p>
       `,
     });
     if (!ok) return;
