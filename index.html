@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Arken — one-signature batch transfer on Arc Testnet. Own Arken protocol. Not affiliated with Arc Network."
+    />
+    <meta name="color-scheme" content="dark light" />
+    <title>Arken · Arc Transfer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+  </head>
+  <body>
+    <div id="app" class="shell">
+      <aside class="rail">
+        <div class="rail-brand">
+          <div class="rail-logo">
+            <img src="/logo.png" alt="Arken" width="48" height="44" draggable="false" />
+          </div>
+          <div>
+            <strong class="rail-name">ARKEN</strong>
+            <span class="rail-tag">Transfer</span>
+          </div>
+        </div>
+
+        <ol class="steps" aria-label="Flow">
+          <li class="step is-on" data-step="1"><i>01</i><span>Connect</span></li>
+          <li class="step" data-step="2"><i>02</i><span>Asset</span></li>
+          <li class="step" data-step="3"><i>03</i><span>Recipients</span></li>
+          <li class="step" data-step="4"><i>04</i><span>Send</span></li>
+        </ol>
+
+        <div class="rail-card">
+          <p>Arken uses its own protocol <strong>Arken</strong>.</p>
+          <p class="rail-disclaimer">Not officially affiliated with Arc Network.</p>
+        </div>
+
+        <div class="rail-foot">
+          <a href="https://testnet.arcscan.app" target="_blank" rel="noopener">Explorer</a>
+          <a href="https://faucet.circle.com" target="_blank" rel="noopener">Faucet</a>
+          <a href="https://docs.arc.io/arc/references/connect-to-arc" target="_blank" rel="noopener">Arc docs</a>
+        </div>
+      </aside>
+
+      <div class="stage">
+        <header class="stage-top">
+          <div class="stage-titles">
+            <h1>Batch send</h1>
+            <p>Many wallets · one signature</p>
+          </div>
+          <div class="stage-actions">
+            <div class="net-row" role="group" aria-label="Network, theme, and social">
+              <div class="social-row" aria-label="Social">
+                <a
+                  class="icon-btn social-btn"
+                  href="https://x.com/Web3Julkar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="X · @Web3Julkar"
+                  aria-label="X profile @Web3Julkar"
+                >
+                  <svg class="i-social" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+                    />
+                  </svg>
+                </a>
+                <a
+                  class="icon-btn social-btn"
+                  href="https://github.com/ItzJulkar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="GitHub · ItzJulkar"
+                  aria-label="GitHub profile ItzJulkar"
+                >
+                  <svg class="i-social" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path
+                      fill="currentColor"
+                      d="M12 2C6.477 2 2 6.486 2 12.021c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.009-.866-.013-1.7-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.004.071 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.833.091-.647.35-1.088.636-1.339-2.22-.253-4.555-1.113-4.555-4.952 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.56 9.56 0 0 1 2.504.337c1.909-1.296 2.748-1.026 2.748-1.026.546 1.378.203 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.944.359.31.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .268.18.58.688.481A10.019 10.019 0 0 0 22 12.021C22 6.486 17.523 2 12 2z"
+                    />
+                  </svg>
+                </a>
+              </div>
+              <button type="button" id="themeToggle" class="icon-btn" title="Theme" aria-label="Toggle theme">
+                <span class="i-sun"></span><span class="i-moon"></span>
+              </button>
+              <select id="chainSelect" class="select select-net" title="Network"></select>
+            </div>
+            <button id="connectBtn" class="btn btn-accent" type="button">Connect</button>
+          </div>
+        </header>
+
+        <div class="wallet-bar" id="walletStrip" hidden>
+          <div class="wb">
+            <span class="k">Wallet</span>
+            <code id="walletAddress">—</code>
+          </div>
+          <div class="wb">
+            <span class="k">Network</span>
+            <span id="walletChain">—</span>
+          </div>
+          <div class="wb">
+            <span class="k">Balance</span>
+            <span id="walletBalance" class="mono">—</span>
+          </div>
+        </div>
+
+        <div class="work">
+          <section class="card" id="cardAsset">
+            <header class="card-h">
+              <span class="card-n">02</span>
+              <div>
+                <h2>Asset</h2>
+                <p>ARC network coins · native USDC or token contract</p>
+              </div>
+            </header>
+
+            <div class="field" id="tokenField">
+              <span class="lab">ARC network coins</span>
+              <div class="search-wrap">
+                <input
+                  id="tokenSearch"
+                  class="input"
+                  type="search"
+                  spellcheck="false"
+                  placeholder="Search USDC / token name, or paste 0x…"
+                  autocomplete="off"
+                />
+                <div id="tokenResults" class="results" hidden></div>
+              </div>
+              <div id="selectedTokenChip" class="chip-sel" hidden></div>
+              <span class="hint" id="tokenMeta">USDC · EURC · cirBTC · or paste contract under Advanced</span>
+              <details class="adv" id="advContract">
+                <summary>Custom contract</summary>
+                <p class="warn">Only paste addresses you verified on Arc explorer.</p>
+                <input id="tokenAddress" class="input mono" type="text" spellcheck="false" placeholder="0x…" autocomplete="off" />
+              </details>
+            </div>
+          </section>
+
+          <section class="card" id="cardRecipients">
+            <header class="card-h">
+              <span class="card-n">03</span>
+              <div>
+                <h2>Recipients</h2>
+                <p>Equal split by default</p>
+              </div>
+            </header>
+
+            <div class="two">
+              <label class="field">
+                <span class="lab">Format</span>
+                <select id="parseMode" class="select block">
+                  <option value="equal_split" selected>Addresses only · same amount</option>
+                  <option value="addr_amount">Address + amount (CSV)</option>
+                </select>
+              </label>
+              <label class="field" id="equalAmountField">
+                <span class="lab">Amount each</span>
+                <input id="equalAmount" class="input mono" type="text" inputmode="decimal" placeholder="0.01" />
+              </label>
+            </div>
+
+            <label class="field grow">
+              <span class="lab">Address list</span>
+              <textarea
+                id="recipients"
+                class="textarea mono"
+                rows="8"
+                spellcheck="false"
+                placeholder="0xAbc…&#10;0xDef…&#10;0x789…"
+              ></textarea>
+              <span class="hint">One address per line · max 200</span>
+            </label>
+          </section>
+        </div>
+
+        <footer class="dock">
+          <p class="dock-note" id="batchHint">One batch · all recipients</p>
+          <div class="dock-btns">
+            <button id="parseBtn" class="btn btn-ghost" type="button">Validate</button>
+            <button id="simulateBtn" class="btn btn-ghost" type="button" disabled>Est. gas</button>
+            <button id="sendBtn" class="btn btn-accent" type="button" disabled>Send · 1 signature</button>
+          </div>
+        </footer>
+      </div>
+
+      <aside class="inspect">
+        <section class="ins-block">
+          <div class="ins-h">
+            <h2>Preview</h2>
+            <span class="pill" id="previewCount">0</span>
+          </div>
+          <div class="meters">
+            <div><span class="k">Valid</span><strong id="statValid" class="mono">0</strong></div>
+            <div><span class="k">Invalid</span><strong id="statInvalid" class="mono bad">0</strong></div>
+            <div class="span2"><span class="k">Total</span><strong id="statTotal" class="mono accent">0</strong></div>
+            <div class="span2"><span class="k">Gas</span><strong id="statGas" class="mono">—</strong></div>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th>#</th><th>To</th><th>Amt</th><th></th></tr>
+              </thead>
+              <tbody id="previewBody">
+                <tr class="empty"><td colspan="4">Validate to fill</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="ins-block soft">
+          <h3>Notes</h3>
+          <ul class="notes">
+            <li>Wrong chain or contract = permanent loss</li>
+            <li>Site never holds your funds</li>
+            <li>Start with a tiny test send</li>
+          </ul>
+        </section>
+
+        <section class="ins-block">
+          <div class="ins-h">
+            <h2>History</h2>
+            <button type="button" class="linkish" id="historyClear">Clear</button>
+          </div>
+          <div id="historyList" class="hist">
+            <p class="muted">Local only · this browser</p>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <div id="confirmModal" class="modal" hidden>
+      <div class="modal-backdrop" data-modal-close></div>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <h2 id="confirmTitle">Confirm batch</h2>
+        <div id="confirmBody" class="modal-body"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="confirmCancel" data-modal-close>Cancel</button>
+          <button type="button" class="btn btn-accent" id="confirmOk">Sign batch</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
